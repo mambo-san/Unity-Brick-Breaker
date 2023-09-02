@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,38 +11,33 @@ public class MainManager : MonoBehaviour
     public static MainManager Instance;
     [SerializeField] private TMP_InputField tmpInputField;
 
+    public string HighScorePlayer;
+    public int HighScore;
 
     public string PlayerName;
 
     private void Awake()
     {
+        //Basic setup
         Instance = this;
         DontDestroyOnLoad(gameObject);
-
-        
         tmpInputField.onEndEdit.AddListener(TextMeshUpdated);
-        PlayerName = "Anonymous";
-    }
 
-    // Start is called before the first frame update
-    void Start()
-    {
+        //Initialize for very first play
+        Instance.PlayerName = "Anonymous";
+        Instance.HighScorePlayer = "";
+        Instance.HighScore = 0;
 
-    }
-
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        //Load data if exist
+        LoadSaveData();
     }
 
     public void TextMeshUpdated(string playerName)
     {
 
-        if (PlayerName != null || PlayerName.Length != 0) 
+        if (playerName != null || PlayerName.Length != 0) 
         {
-            PlayerName = playerName;
+            Instance.PlayerName = playerName;
         }
     }
 
@@ -49,5 +46,35 @@ public class MainManager : MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
+
+    //Saving mechanism
+    [Serializable]
+    private class SaveData
+    {
+        public string playerName;
+        public int score;
+    }
     
+    public void SaveHighScore(int score)
+    {
+        SaveData data = new SaveData();
+        data.playerName = Instance.PlayerName;
+        data.score = score;
+
+        string path = Application.persistentDataPath + "/saveData.json";
+        string json = JsonUtility.ToJson(data);
+        File.WriteAllText(path, json);
+    }
+
+    public void LoadSaveData()
+    {
+        string path = Application.persistentDataPath + "/saveData.json";
+        if (File.Exists(path))
+        {
+            string json = File.ReadAllText(path);
+            SaveData data = JsonUtility.FromJson<SaveData>(json);
+            Instance.HighScore = data.score;
+            Instance.HighScorePlayer = data.playerName;
+        }
+    }
 }
