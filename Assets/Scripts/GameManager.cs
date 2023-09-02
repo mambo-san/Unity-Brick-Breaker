@@ -88,8 +88,18 @@ public class GameManager : MonoBehaviour
     public void GameOver()
     {
         m_GameOver = true;
-        GameOverText.SetActive(true);
 
-        MainManager.Instance.SaveHighScore(m_Points);
+        string gameOverMessage = "GAME OVER\r\nPress Space to Restart";
+        Debug.Log("m_Points=" + m_Points);
+        Debug.Log("High score=" + MainManager.Instance.HighScore);
+        if (m_Points > MainManager.Instance.HighScore)
+        {
+            gameOverMessage = "GAME OVER\r\nBest Score updated: " + m_Points + "\r\nPress Space to Restart";
+            MainManager.Instance.SaveHighScore(m_Points);
+        }
+        
+
+        GameOverText.GetComponent<Text>().text = gameOverMessage;
+        GameOverText.SetActive(true);
     }
 }

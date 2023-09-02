@@ -57,13 +57,18 @@ public class MainManager : MonoBehaviour
     
     public void SaveHighScore(int score)
     {
+        Instance.HighScore = score;
+        Instance.HighScorePlayer = Instance.PlayerName;
+
         SaveData data = new SaveData();
         data.playerName = Instance.PlayerName;
-        data.score = score;
+        data.score = Instance.HighScore;
 
         string path = Application.persistentDataPath + "/saveData.json";
         string json = JsonUtility.ToJson(data);
         File.WriteAllText(path, json);
+
+        
     }
 
     public void LoadSaveData()
